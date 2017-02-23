@@ -18,8 +18,10 @@ package daemonupgradecontroller
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"sort"
+	"strconv"
 	"sync"
 	"time"
 
@@ -216,9 +218,17 @@ func (dsc *DaemonUpgradeController) Run(workers int, stopCh <-chan struct{}) {
 }
 
 func (dsc *DaemonUpgradeController) runWorker() {
-	glog.Infof("Starting Daemon Sets controller worker")
+	var hotLoopDelay time.Duration
+	s := os.Getenv("HOTLOOP_DELAY")
+	if s != "" {
+		i, err := strconv.ParseInt(s, 10, 64)
+		if err == nil {
+			hotLoopDelay = time.Second * time.Duration(i)
+		}
+	}
+	glog.Infof("Starting Daemon Sets controller worker with delay (%ss)", s)
 	for dsc.processNextWorkItem() {
-		time.Sleep(time.Second * 10)
+		time.Sleep(hotLoopDelay)
 	}
 }
 
