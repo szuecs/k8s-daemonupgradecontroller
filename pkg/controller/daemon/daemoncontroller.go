@@ -218,6 +218,7 @@ func (dsc *DaemonUpgradeController) Run(workers int, stopCh <-chan struct{}) {
 func (dsc *DaemonUpgradeController) runWorker() {
 	glog.Infof("Starting Daemon Sets controller worker")
 	for dsc.processNextWorkItem() {
+		time.Sleep(time.Second * 10)
 	}
 }
 
